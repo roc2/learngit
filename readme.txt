@@ -5,3 +5,5 @@ Git is a free software.
 Git is a distributed control system.
 
 Git copyght: GPL.
+
+Git liscense.
