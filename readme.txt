@@ -8,4 +8,6 @@ Git copyght: GPL.
 
 Git liscense.
 
-add new line
+create a new branch is quick.
+and it's simple.
+
