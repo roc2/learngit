@@ -11,3 +11,4 @@ Git liscense.
 create a new branch is quick.
 and it's simple.
 
+new merge
