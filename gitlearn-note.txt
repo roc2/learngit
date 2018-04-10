@@ -1,0 +1,119 @@
+一、本地仓库管理
+1、Git是分布式版本控制系统；
+a、集中式版本控制系统，如SVN，需要联网，版本库放在服务器；
+b、每个人的电脑上都有完整的版本库；
+2、设置用户和Email：
+git config --global user.name "name"
+git config --global user.email "email@example.com"
+tips: --global 表示机器上所有的Git仓库都使用这个配置；
+3、建立版本库
+a、创建目录；
+b、git init 把目录变为Git仓库；
+4、版本控制只能跟踪到文本文件的改动，无法跟踪到视频、图片等二进制文件，word文档也是二进制的，无法用版本控制跟踪具体的更改；
+5、文本文件是有编码的，建议所有的都用utf-8编码，平台通用；
+6、添加文件到仓库：
+git add xxx.txt
+7、提交文件到仓库：
+git commit -m "change log"
+8、可以一次添加多次文件后，再提交到仓库；
+
+9、查看仓库当前的状态：
+git status
+10、查看文件修改内容
+git diff
+11、查看日志
+git log
+--pretty=oneline  简单的log
+12、HEAD 表示当前版本，上一个版本:HEAD^，上上一个版本:HEAD^^，上n个版本:HEAD~n；
+13、回退到之前版本：
+git reset
+14、查看命令记录
+git  reflog
+15、暂存区：add将修改的文件加入到暂存区，commit将暂存区的文件提交到当前分支；
+16、git checkout -- file 取消修改
+file修改后还没放到暂存区，会回到版本库一样的状态；
+file已经加到暂存区后又修改了，会回到添加到暂存区的状态；
+17、把暂存区的文件恢复到工作区：
+git reset HEAD file
+18、版本回退小结：
+场景1：当你改乱了工作区某个文件内容，想直接丢弃工作区的修改用命令git checkout --file；
+场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD file，就回到了场景1，第二步按场景1操作。
+场景3：当你已经提交了不合适的修改到版本库时，想要撤销本次提交，直接回退版本，不过前提是没有推送到远程库。
+19、当做了删除文件操作后：
+a、确定从版本库中删除文件：git rm file ， 再 commit；
+b、恢复删除的文件：git checkout -- file
+二、远程仓库管理
+1、将本地仓库推送到远程
+a、登录github后新建仓库；
+b、本地仓库：git remote add origin git@github.com:roc2/learngit.git (在新建后会有提示ssh）
+c、本地执行：git push -u origin master
+tips：出错https://www.cnblogs.com/eoooxy/p/6075625.html
+2、远程仓库到本地
+a、远程新建仓库
+b、本地执行：git clone git@github.com:roc2/learngit2.git
+tips:git支持ssh和http协议，但是ssh原生，速度更快；
+三、分支管理
+1、创建分支：
+a、git checkout -b dev 创建并切换到dev分支；
+b、git branch 查看当前分支；
+2、分支合并
+a、git merge dev 把dev分支合并到当前分支；
+3、删除分支
+a、git branch -d dev 删除dev分支；
+tips：一般在新分支上完成某个任务，完成后合并到master分支，再删除新分支，这和在master 分支完成任务效果一样，但是更加安全；
+4、冲突：
+a、master和新分支都有新的提交，合并分支时会出现冲突；
+b、<<<<<<，=======，>>>>>>>表示分支中不同的内容；
+c、git log --graph 查看分支合并图；
+5、分支管理策略
+a、一般合并分支会用Fast forward模式，但是这种模式下在删除分支后会丢失分支信息；
+b、禁用此模式：合并时加 --no-ff；
+c、分支管理基本原则：
+mster分支仅仅用来发布新版本，稳定的，不在此分支上干活；
+dev分支用来工作，不稳定，发布新版本时候，把dev合并到master，再发布版本；
+6、bug分支
+a、每个bug通过新的临时分支解决，然后合并分支并删除临时分支；
+b、git stash，把当前工作现场储存起来，等以后恢复现场后继续工作；
+c、然后新建临时分区修复bug；
+d、查看保存的工作现场：git stash list
+e、恢复工作现场：git stash apply，再通过 git stash drop删除；
+也可以git stash pop恢复同时删除；
+f、恢复到指定的stash，git stash apply stash@{0}；
+g、现在可以继续工作了；
+7、feature分支
+a、用于开发新功能；
+b、没有合并之前要删除新功能的分支， git branch -D feature-new 强行删除；
+8、多人协作
+a、查看远程库信息：git remote -v（显示更详细）
+b、推送分支：git push origin master
+c、master分支为主分支，要实时与远程同步；
+dev为开发分支，所有成员在上面工作，也要与远程同步；
+bug分支仅用于本地修复bug；
+feature分支是否同步取决于是否与他人合作开发；
+d、创建远程dev分支到本地进行工作：git checkout -b dev origin/dev
+e、如果两个人对同一个文件修改后试图推送到远程可能会失败，解决方法：
+先用git pull把最新的提交抓取下来在本地合并解决冲突再推送；
+f、多人工作模式流程：git push推送自己的分支 -》如果推送失败说明远程比本地新-》使用git pull试图合并-》如果有冲突在解决冲突后再本地提交-》再推送到远程；
+四、标签管理
+1、标签是版本库的一个快照；容易记住，与某个commit 绑定在一起；
+2、git tag v1.0 打一个新标签v1.0
+3、查看标签：git tag；
+4、给历史commit 打标签：git tag tagname id号；
+5、查看tag信息：git show tagname
+6、创建带说明的标签：git tag -a tagname -m “说明” id号；
+7、删除标签：git tag -d tagname；
+8、推送标签到远程：git push origin tagname；
+9、一次性推送所有为推送的标签：git push origin --tags；
+10、删除已经推送到远程的标签：先本地删除，再远程删除：git push origin :refs/tags/tagname；
+五、GitHub和码云
+1、参与开源项目：先fork在自己的账号下克隆一个开源项目的仓库，然后就可以clone进行更改推送；
+2、可以同时把本地库与不同的远程库同步：只是远程库不用origin名字而是使用不同名字区别不同的远程仓库；
+六、自定义Git
+1、忽略特殊文件
+在仓库目录下新建.gitignore文件，然后把要忽略的文件名填入该文件；
+git check-ignore 查看ignore文件规则错误；
+2、给git 命令起别名
+a、git config --global alias.st status 给status命令起别名为st；
+b、一个log 的配置：git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"；
+3、也可以通过git的配置文件进行修改配置；
+4、可以搭建一个git服务器作为公司的私有仓库；
